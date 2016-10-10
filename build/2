@@ -1,0 +1,100 @@
+#include "EKFTranslation.h"
+
+float EKFTranslation::a[] = {0, 0, 0};
+float EKFTranslation::v[] = {0, 0, 0};
+float EKFTranslation::p[] = {0, 0, 0};
+
+Eigen::MatrixXd EKFTranslation::F = Eigen::MatrixXd::Identity(9,9);
+Eigen::MatrixXd EKFTranslation::P = Eigen::MatrixXd::Identity(9,9);
+Eigen::MatrixXd EKFTranslation::G = Eigen::MatrixXd::Zero(9,3);
+Eigen::MatrixXd EKFTranslation::H = Eigen::MatrixXd::Zero(3,9);
+Eigen::MatrixXd EKFTranslation::R = Eigen::MatrixXd::Zero(3,3);
+
+EKFTraslation::H << 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 1, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 1;
+
+EKFTraslation::R << 0.25, 0, 0,
+                    0, 0.25, 0,
+                    0, 0, 0.25;
+
+void EKFTraslation::update(float a0, float a1, float a2, float dt)
+{
+
+    // Construct F
+    F(0, 3) = F(1, 4) = F(2, 5) = F(3, 6) = F(4, 7) = F(5, 8) = dt;
+    F(0, 6) = F(1, 7) = F(2, 8) = dt2_2;
+
+    // Predict
+    float dt2_2 = dt*dt/2;
+
+    p[0] = p[0] + v[0]*dt + a[0]*dt2_2; 
+    p[1] = p[1] + v[1]*dt + a[1]*dt2_2;
+    p[2] = p[2] + v[2]*dt + a[2]*dt2_2;
+
+    v[0] = v[0] + a[0]*dt;
+    v[1] = v[1] + a[1]*dt;
+    v[2] = v[2] + a[2]*dt;
+
+    P = F*P*F.transpose();
+
+    // Update
+    G =  P*H.transpose()*(H*P*H.transpose() + R).inverse();
+    P = (Eigen::MatrixXd::Identity(9,9) - G*H)*P;
+    Eigen::MatrixXd h(3,1);
+    h << a[0] - a0,
+         a[1] - a1,
+         a[2] - a2;
+    Eigen::MatrixXd g(9,1);
+    g = G*h;
+
+    p[0] += g(0, 0);
+    p[1] += g(1, 0); 
+    p[2] += g(2, 0);
+
+    v[0] += g(3, 0);
+    v[1] += g(4, 0); 
+    v[2] += g(5, 0);
+
+    a[0] += g(6, 0);
+    a[1] += g(7, 0); 
+    a[2] += g(8, 0);
+
+}
+
+void EKFTraslation::update(float *a, float dt)
+{
+    update(a[0], a[1], a[2], dt);
+}
+
+void EKFTraslation::getTranslation(std::vector<float> &T)
+{
+    if(T.empty()){
+        T[0] = p[0];
+        T[1] = p[1];
+        T[2] = p[2];
+    }
+}
+
+void EKFTraslation::getTranslation(float *T)
+{
+    T[0] = p[0];
+    T[1] = p[1];
+    T[2] = p[2];
+}
+
+void EKFTraslation::getTranslation(float &t0, float &t1, float &t2)
+{
+    t0 = p[0];
+    t1 = p[1];
+    t2 = p[2];
+}
+
+void EKFTraslation::reset()
+{
+   a[0] = a[1] = a[2] = 0; 
+   v[0] = v[1] = v[2] = 0;
+   a[0] = a[1] = a[2] = 0;
+
+   P = Eigen::MatrixXd::Identity(9,9);
+}

@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/liming/IMU_POSE/include/MadgwickAHRS.h
+
+/home/liming/IMU_POSE/include/MahonyAHRS.h
+
+/home/liming/IMU_POSE/test/test.cpp
+stdio.h
+/home/liming/IMU_POSE/test/stdio.h
+stdlib.h
+/home/liming/IMU_POSE/test/stdlib.h
+../include/MadgwickAHRS.h
+/home/liming/IMU_POSE/include/MadgwickAHRS.h
+../include/MahonyAHRS.h
+/home/liming/IMU_POSE/include/MahonyAHRS.h
+

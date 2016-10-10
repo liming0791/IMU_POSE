@@ -1,0 +1,1 @@
+/usr/bin/c++    -Wall   -O3 -march=native -std=c++11 -O3 -DNDEBUG   CMakeFiles/test.dir/test/test.cpp.o  -o ../bin/test -rdynamic ../lib/libIMU_POSE.so -Wl,-rpath,/home/liming/IMU_POSE/lib 
